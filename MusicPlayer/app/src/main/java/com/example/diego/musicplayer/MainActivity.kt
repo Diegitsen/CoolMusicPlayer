@@ -1,5 +1,6 @@
 package com.example.diego.musicplayer
 
+import android.media.MediaPlayer
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -12,6 +13,7 @@ class MainActivity : AppCompatActivity() {
 
     var listSong = ArrayList<SongInfo>()
     var myAdapter:MySongAdapter? = null
+    var mp: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,26 @@ class MainActivity : AppCompatActivity() {
             myView.tvAutor.text = song.author
 
             myView.bPlay.setOnClickListener(View.OnClickListener {
+                mp = MediaPlayer()
+
+                if()
+                {
+
+                }
+                else
+                {
+                    try
+                    {
+                        mp!!.setDataSource(song.songURL)
+                        mp!!.prepare()
+                        mp!!.start()
+                        myView.bPlay.text = "Stop"
+                    }
+                    catch(ex:Exception){
+
+                    }
+                }
+
 
             })
 

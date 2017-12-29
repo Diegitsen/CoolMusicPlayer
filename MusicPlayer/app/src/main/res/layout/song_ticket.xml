@@ -42,13 +42,14 @@
         </LinearLayout>
 
 
-        <ImageButton
+        <Button
             android:id="@+id/bPlay"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_weight="0"
+            android:textColor="#000000"
             android:background="@drawable/play"
-            android:text="Button" />
+            android:text="Play" />
 
 
     </LinearLayout>
