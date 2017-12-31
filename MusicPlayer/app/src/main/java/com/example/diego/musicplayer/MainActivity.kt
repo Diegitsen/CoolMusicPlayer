@@ -21,6 +21,9 @@ class MainActivity : AppCompatActivity() {
         playSongs()
         myAdapter = MySongAdapter(listSong)
         lvSongs.adapter = myAdapter
+
+        var myTracking = mySongTrack()
+        myTracking.start()
     }
 
     fun playSongs()
@@ -50,20 +53,25 @@ class MainActivity : AppCompatActivity() {
             myView.tvAutor.text = song.author
 
             myView.bPlay.setOnClickListener(View.OnClickListener {
-                mp = MediaPlayer()
 
-                if()
+
+                if(myView.bPlay.text.equals("X"))
                 {
-
+                    mp!!.stop()
+                    //myView.bPlay.setBackgroundResource(R.drawable.playb)
+                    myView.bPlay.text = "O"
                 }
                 else
-                {//oye sii
+                {
+                    mp = MediaPlayer()
                     try
                     {
                         mp!!.setDataSource(song.songURL)
                         mp!!.prepare()
                         mp!!.start()
-                        myView.bPlay.text = "Stop"
+                       // myView.bPlay.setBackgroundResource(R.drawable.close)
+                        myView.bPlay.text = "X"
+                        sbProgress.max = mp!!.duration
                     }
                     catch(ex:Exception){
 
@@ -89,4 +97,36 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    inner class mySongTrack():Thread()
+    {
+
+
+        override fun run()
+        {
+            while(true)
+            {
+                try
+                {
+                    Thread.sleep(1000)
+                }
+                catch (ex:Exception)
+                {
+                }
+
+                runOnUiThread {
+                    if(mp!=null)
+                    {
+                        sbProgress.progress = mp!!.currentPosition
+                    }
+                }
+            }
+        }
+    }
+
 }
+
+
+
+
+
