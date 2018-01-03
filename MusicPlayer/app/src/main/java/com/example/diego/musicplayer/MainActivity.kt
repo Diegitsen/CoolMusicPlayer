@@ -1,11 +1,16 @@
 package com.example.diego.musicplayer
 
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.song_ticket.view.*
 
@@ -18,10 +23,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        playSongs()
-        myAdapter = MySongAdapter(listSong)
-        lvSongs.adapter = myAdapter
-
+        //playSongs()
+        checkUserPermsions()
         var myTracking = mySongTrack()
         myTracking.start()
     }
@@ -55,11 +58,11 @@ class MainActivity : AppCompatActivity() {
             myView.bPlay.setOnClickListener(View.OnClickListener {
 
 
-                if(myView.bPlay.text.equals("X"))
+                if(myView.bPlay.background.equals(R.drawable.close))
                 {
                     mp!!.stop()
-                    //myView.bPlay.setBackgroundResource(R.drawable.playb)
-                    myView.bPlay.text = "O"
+                    myView.bPlay.setBackgroundResource(R.drawable.playb)
+                    //myView.bPlay.text = "O"
                 }
                 else
                 {
@@ -69,8 +72,8 @@ class MainActivity : AppCompatActivity() {
                         mp!!.setDataSource(song.songURL)
                         mp!!.prepare()
                         mp!!.start()
-                       // myView.bPlay.setBackgroundResource(R.drawable.close)
-                        myView.bPlay.text = "X"
+                        myView.bPlay.setBackgroundResource(R.drawable.close)
+                        //myView.bPlay.text = "X"
                         sbProgress.max = mp!!.duration
                     }
                     catch(ex:Exception){
@@ -101,7 +104,6 @@ class MainActivity : AppCompatActivity() {
     inner class mySongTrack():Thread()
     {
 
-
         override fun run()
         {
             while(true)
@@ -121,6 +123,82 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    /*fun checkUserPermission()
+    {
+        if(Build.VERSION.SDK_INT>=23)
+        {
+            if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED)
+            {
+                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        ,REQUEST_CODE_ASK_PERMISSIONS)
+                return
+            }
+        }
+
+        loadSong()
+    }*/
+
+    fun checkUserPermsions() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                        REQUEST_CODE_ASK_PERMISSIONS)
+                return
+            }
+        }
+
+        loadSong()
+
+    }
+
+    //get access to location permission
+    private val REQUEST_CODE_ASK_PERMISSIONS = 123
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when(requestCode)
+        {
+            REQUEST_CODE_ASK_PERMISSIONS -> if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                                                {loadSong()}
+                                            else
+                                            {
+                                                //Permission Denied
+                                                Toast.makeText(this, "denail", Toast.LENGTH_SHORT).show()
+                                            }
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+
+
+
+    }
+
+    fun loadSong()
+    {
+        val allSongsURI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val selection = MediaStore.Audio.Media.IS_MUSIC + "!=0"
+        val cursor = contentResolver.query(allSongsURI, null, selection, null, null)
+        if(cursor != null)
+        {
+            if(cursor!!.moveToFirst())
+            {
+                do
+                {
+                    val songURL = cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Audio.Media.DATA))
+                    val songAuthor = cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Audio.Media.ARTIST))
+                    val songName = cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME))
+                    listSong.add(SongInfo(songName, songAuthor, songURL))
+                }while(cursor!!.moveToFirst())
+            }
+
+            cursor!!.close()
+
+            myAdapter = MySongAdapter(listSong)
+            lvSongs.adapter = myAdapter
+
         }
     }
 
