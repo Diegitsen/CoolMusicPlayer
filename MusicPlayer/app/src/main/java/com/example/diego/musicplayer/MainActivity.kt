@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity() {
                     val songAuthor = cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Audio.Media.ARTIST))
                     val songName = cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME))
                     listSong.add(SongInfo(songName, songAuthor, songURL))
-                }while(cursor!!.moveToFirst())
+                }while(cursor!!.moveToNext())
             }
 
             cursor!!.close()
